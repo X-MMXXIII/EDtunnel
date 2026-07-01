@@ -4,6 +4,7 @@
 
 import { at, pt, trojanPt } from '../config/constants.js';
 import { proxyIPs } from '../config/defaults.js';
+import { escapeHtml, jsLiteral } from '../utils/html.js';
 
 /**
  * Generates configuration HTML page for VLESS and Trojan clients.
@@ -39,14 +40,14 @@ export function getConfig(userIDs, hostName, proxyIP, trojanPassword = null) {
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <meta property='og:site_name' content='EDtunnel: Protocol Configuration' />
     <meta property='og:type' content='website' />
-    <meta property='og:title' content='EDtunnel - Protocol Configuration and Subscribe Output' />
-    <meta property='og:description' content='Use Cloudflare Pages and Worker serverless to implement protocol' />
-    <meta property='og:url' content='https://${hostName}/' />
+		<meta property='og:title' content='EDtunnel - Protocol Configuration and Subscribe Output' />
+		<meta property='og:description' content='Use Cloudflare Pages and Worker serverless to implement protocol' />
+		<meta property='og:url' content='https://${escapeHtml(hostName)}/' />
     <meta property='og:image' content='https://cdn.jsdelivr.net/gh/6Kmfi6HP/EDtunnel@refs/heads/main/image/logo.png' />
     <meta name='twitter:card' content='summary_large_image' />
     <meta name='twitter:title' content='EDtunnel - Protocol Configuration and Subscribe Output' />
     <meta name='twitter:description' content='Use Cloudflare Pages and Worker serverless to implement protocol' />
-    <meta name='twitter:url' content='https://${hostName}/' />
+		<meta name='twitter:url' content='https://${escapeHtml(hostName)}/' />
     <meta name='twitter:image' content='https://cdn.jsdelivr.net/gh/6Kmfi6HP/EDtunnel@refs/heads/main/image/logo.png' />
     <meta property='og:image:width' content='1500' />
     <meta property='og:image:height' content='1500' />
@@ -177,11 +178,11 @@ export function getConfig(userIDs, hostName, proxyIP, trojanPassword = null) {
       <p><a href="https://github.com/6Kmfi6HP/EDtunnel" target="_blank" style="color: #00ff00;">EDtunnel - https://github.com/6Kmfi6HP/EDtunnel</a></p>
       <div style="clear: both;"></div>
       <div class="btn-group">
-        <a href="//${hostName}/sub/${userIDArray[0]}" class="btn" target="_blank"><i class="fas fa-link"></i> VLESS Subscription</a>
-        <a href="//${hostName}/trojan/${userIDArray[0]}" class="btn" target="_blank"><i class="fas fa-shield-alt"></i> Trojan Subscription</a>
-        <a href="clash://install-config?url=${encodeURIComponent(`https://${hostName}/sub/${userIDArray[0]}?format=clash`)}" class="btn" target="_blank"><i class="fas fa-bolt"></i> Clash Subscription</a>
-        <a href="${clash_link}" class="btn" target="_blank"><i class="fas fa-bolt"></i> Clash Link</a>
-        <a href="${subbestip}" class="btn" target="_blank"><i class="fas fa-star"></i> Best IP Subscription</a>
+		<a href="//${escapeHtml(hostName)}/sub/${escapeHtml(userIDArray[0])}" class="btn" target="_blank"><i class="fas fa-link"></i> VLESS Subscription</a>
+		<a href="//${escapeHtml(hostName)}/trojan/${escapeHtml(userIDArray[0])}" class="btn" target="_blank"><i class="fas fa-shield-alt"></i> Trojan Subscription</a>
+		<a href="clash://install-config?url=${escapeHtml(encodeURIComponent(`https://${hostName}/sub/${userIDArray[0]}?format=clash`))}" class="btn" target="_blank"><i class="fas fa-bolt"></i> Clash Subscription</a>
+		<a href="${escapeHtml(clash_link)}" class="btn" target="_blank"><i class="fas fa-bolt"></i> Clash Link</a>
+		<a href="${escapeHtml(subbestip)}" class="btn" target="_blank"><i class="fas fa-star"></i> Best IP Subscription</a>
       </div>
       <div class="subscription-info">
         <h3>Options Explained:</h3>
@@ -207,54 +208,54 @@ export function getConfig(userIDs, hostName, proxyIP, trojanPassword = null) {
 		const firstProxyHost = (Array.isArray(proxyIP) ? proxyIP[0] : proxyIP).split(':')[0];
 		const protocolSec = atob(pt) + '://' + userID + atob(at) + firstProxyHost + ":" + proxyPort + commonUrlPart;
 		return `
-      <div class="container config-item">
-        <h2>UUID: ${userID}</h2>
-        <h3>VLESS Default IP Configuration</h3>
-        <div class="code-container">
-          <pre><code>${protocolMain}</code></pre>
-          <button class="btn copy-btn" onclick='copyToClipboard("${protocolMain}")'><i class="fas fa-copy"></i> Copy</button>
-        </div>
+	  <div class="container config-item">
+		<h2>UUID: ${escapeHtml(userID)}</h2>
+		<h3>VLESS Default IP Configuration</h3>
+		<div class="code-container">
+		  <pre><code>${escapeHtml(protocolMain)}</code></pre>
+		  <button class="btn copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent)"><i class="fas fa-copy"></i> Copy</button>
+		</div>
 
         <h3>VLESS Best IP Configuration</h3>
         <div class="input-group mb-3">
-          <select class="form-select" id="proxySelect" onchange="updateProxyConfig()">
-            ${typeof proxyIP === 'string' ?
-				`<option value="${proxyIP}">${proxyIP}</option>` :
-				Array.from(proxyIP).map(proxy => `<option value="${proxy}">${proxy}</option>`).join('')}
-          </select>
+		  <select class="form-select" id="proxySelect" onchange="updateProxyConfig()">
+			${typeof proxyIP === 'string' ?
+				`<option value="${escapeHtml(proxyIP)}">${escapeHtml(proxyIP)}</option>` :
+				Array.from(proxyIP).map(proxy => `<option value="${escapeHtml(proxy)}">${escapeHtml(proxy)}</option>`).join('')}
+		  </select>
         </div>
 		<br>
-        <div class="code-container">
-          <pre><code id="proxyConfig">${protocolSec}</code></pre>
-          <button class="btn copy-btn" onclick='copyToClipboard(document.getElementById("proxyConfig").textContent)'><i class="fas fa-copy"></i> Copy</button>
-        </div>
+		<div class="code-container">
+		  <pre><code id="proxyConfig">${escapeHtml(protocolSec)}</code></pre>
+		  <button class="btn copy-btn" onclick='copyToClipboard(document.getElementById("proxyConfig").textContent)'><i class="fas fa-copy"></i> Copy</button>
+		</div>
       </div>
     `;
 	}).join('');
 
 	// Trojan configuration section
 	const trojanConfigOutput = `
-      <div class="container config-item">
-        <h2>Trojan Configuration</h2>
-        <p>Password: <code>${effectiveTrojanPassword}</code></p>
-        <h3>Trojan Default IP Configuration</h3>
-        <div class="code-container">
-          <pre><code>${trojanMain}</code></pre>
-          <button class="btn copy-btn" onclick='copyToClipboard("${trojanMain}")'><i class="fas fa-copy"></i> Copy</button>
-        </div>
+	  <div class="container config-item">
+		<h2>Trojan Configuration</h2>
+		<p>Password: <code>${escapeHtml(effectiveTrojanPassword)}</code></p>
+		<h3>Trojan Default IP Configuration</h3>
+		<div class="code-container">
+		  <pre><code>${escapeHtml(trojanMain)}</code></pre>
+		  <button class="btn copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent)"><i class="fas fa-copy"></i> Copy</button>
+		</div>
 
         <h3>Trojan Best IP Configuration</h3>
         <div class="input-group mb-3">
-          <select class="form-select" id="trojanProxySelect" onchange="updateTrojanProxyConfig()">
-            ${typeof proxyIP === 'string' ?
-				`<option value="${proxyIP}">${proxyIP}</option>` :
-				Array.from(proxyIP).map(proxy => `<option value="${proxy}">${proxy}</option>`).join('')}
-          </select>
+		  <select class="form-select" id="trojanProxySelect" onchange="updateTrojanProxyConfig()">
+			${typeof proxyIP === 'string' ?
+				`<option value="${escapeHtml(proxyIP)}">${escapeHtml(proxyIP)}</option>` :
+				Array.from(proxyIP).map(proxy => `<option value="${escapeHtml(proxy)}">${escapeHtml(proxy)}</option>`).join('')}
+		  </select>
         </div>
 		<br>
-        <div class="code-container">
-          <pre><code id="trojanProxyConfig">${trojanSec}</code></pre>
-          <button class="btn copy-btn" onclick='copyToClipboard(document.getElementById("trojanProxyConfig").textContent)'><i class="fas fa-copy"></i> Copy</button>
+		<div class="code-container">
+		  <pre><code id="trojanProxyConfig">${escapeHtml(trojanSec)}</code></pre>
+		  <button class="btn copy-btn" onclick='copyToClipboard(document.getElementById("trojanProxyConfig").textContent)'><i class="fas fa-copy"></i> Copy</button>
         </div>
       </div>
     `;
@@ -267,13 +268,13 @@ export function getConfig(userIDs, hostName, proxyIP, trojanPassword = null) {
     ${configOutput}
     ${trojanConfigOutput}
     <script>
-      const userIDArray = ${JSON.stringify(userIDArray)};
-      const pt = "${pt}";
-      const at = "${at}";
-      const trojanPt = "${trojanPt}";
-      const trojanPassword = "${encodeURIComponent(effectiveTrojanPassword)}";
-      const commonUrlPart = "?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}";
-      const trojanCommonUrlPart = "?security=tls&type=ws&host=${hostName}&path=%2F%3Fed%3D2048&sni=${hostName}#${hostName}";
+	  const userIDArray = ${jsLiteral(userIDArray)};
+	  const pt = "${pt}";
+	  const at = "${at}";
+	  const trojanPt = "${trojanPt}";
+	  const trojanPassword = ${jsLiteral(encodeURIComponent(effectiveTrojanPassword))};
+	  const commonUrlPart = ${jsLiteral(commonUrlPart)};
+	  const trojanCommonUrlPart = ${jsLiteral(trojanCommonUrlPart)};
 
       function copyToClipboard(text) {
         navigator.clipboard.writeText(text)

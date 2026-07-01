@@ -205,14 +205,17 @@ https://your-domain.workers.dev/?http=user:pass@proxy-host:port
 Route traffic through an external VLESS server with full UDP support:
 
 ```bash
-# Environment variable
-VLESS_OUTBOUND=vless://uuid@remote-server:443?type=ws&security=tls&path=/ws
+# Environment variable: complete VLESS outbound configuration
+VLESS_OUTBOUND=vless://11111111-1111-4111-8111-111111111111@vless.example.com:443?type=ws&security=tls&sni=vless.example.com&host=vless.example.com&path=%2Fws
 
-# Via URL path
-https://your-domain.workers.dev/vless://uuid@host:port?type=ws&security=tls/sub/your-uuid
+# Optional: force all TCP traffic through the VLESS outbound proxy
+SOCKS5_RELAY=true
 
-# Via URL parameter
-https://your-domain.workers.dev/?vless=vless://uuid@host:port
+# Via URL parameter: URL-encode the complete VLESS URL
+https://your-domain.workers.dev/sub/your-uuid?globalproxy&vless=vless%3A%2F%2F11111111-1111-4111-8111-111111111111%40vless.example.com%3A443%3Ftype%3Dws%26security%3Dtls%26sni%3Dvless.example.com%26host%3Dvless.example.com%26path%3D%252Fws
+
+# Via path parameter: gvless= enables global proxy mode and also needs URL encoding
+https://your-domain.workers.dev/gvless=vless%3A%2F%2F11111111-1111-4111-8111-111111111111%40vless.example.com%3A443%3Ftype%3Dws%26security%3Dtls%26sni%3Dvless.example.com%26host%3Dvless.example.com%26path%3D%252Fws
 ```
 
 ### Multiple UUID Support

@@ -205,14 +205,17 @@ https://your-domain.workers.dev/?http=user:pass@proxy-host:port
 将流量通过外部 VLESS 服务器转发，支持完整 UDP：
 
 ```bash
-# 环境变量
-VLESS_OUTBOUND=vless://uuid@remote-server:443?type=ws&security=tls&path=/ws
+# 环境变量：完整 VLESS 出站配置
+VLESS_OUTBOUND=vless://11111111-1111-4111-8111-111111111111@vless.example.com:443?type=ws&security=tls&sni=vless.example.com&host=vless.example.com&path=%2Fws
 
-# 通过 URL 路径
-https://your-domain.workers.dev/vless://uuid@host:port?type=ws&security=tls/sub/your-uuid
+# 可选：强制所有 TCP 流量优先走 VLESS 出站代理
+SOCKS5_RELAY=true
 
-# 通过 URL 参数
-https://your-domain.workers.dev/?vless=vless://uuid@host:port
+# 通过 URL 参数：需要对完整 VLESS URL 做 URL 编码
+https://your-domain.workers.dev/sub/your-uuid?globalproxy&vless=vless%3A%2F%2F11111111-1111-4111-8111-111111111111%40vless.example.com%3A443%3Ftype%3Dws%26security%3Dtls%26sni%3Dvless.example.com%26host%3Dvless.example.com%26path%3D%252Fws
+
+# 通过路径参数：gvless= 会启用全局代理，同样需要 URL 编码
+https://your-domain.workers.dev/gvless=vless%3A%2F%2F11111111-1111-4111-8111-111111111111%40vless.example.com%3A443%3Ftype%3Dws%26security%3Dtls%26sni%3Dvless.example.com%26host%3Dvless.example.com%26path%3D%252Fws
 ```
 
 ### 多UUID支持

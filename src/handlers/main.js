@@ -15,6 +15,18 @@ if (!isValidUUID(defaultUserID)) {
 	throw new Error('uuid is not valid');
 }
 
+function redactProxyAddress(address) {
+	if (!address) return address;
+	return String(address).split(',').map((item) => {
+		const atIndex = item.lastIndexOf('@');
+		return atIndex === -1 ? item : `***@${item.slice(atIndex + 1)}`;
+	}).join(',');
+}
+
+function userIDsFromConfig(userID) {
+	return userID.includes(',') ? userID.split(',').map(id => id.trim()) : [userID];
+}
+
 /**
  * Main request handler for the Cloudflare Worker.
  * Processes incoming requests and routes them appropriately.
@@ -66,7 +78,7 @@ export async function handleRequest(request, env, ctx, connect) {
 			const proxyAddresses = urlPROXYIP.split(',').map(addr => addr.trim());
 			const isValid = proxyAddresses.every(addr => proxyPattern.test(addr));
 			if (!isValid) {
-				console.warn('Invalid proxyip format:', urlPROXYIP);
+				console.warn('Invalid proxyip format');
 				urlPROXYIP = null;
 			}
 		}
@@ -77,7 +89,7 @@ export async function handleRequest(request, env, ctx, connect) {
 			const socks5Addresses = urlSOCKS5.split(',').map(addr => addr.trim());
 			const isValid = socks5Addresses.every(addr => socks5Pattern.test(addr));
 			if (!isValid) {
-				console.warn('Invalid socks5 format:', urlSOCKS5);
+				console.warn('Invalid socks5 format');
 				urlSOCKS5 = null;
 			}
 		}
@@ -87,7 +99,12 @@ export async function handleRequest(request, env, ctx, connect) {
 		requestConfig.globalProxy = enableGlobalProxy || requestConfig.socks5Relay;
 
 		// Log parameters for debugging
-		console.log('Config params:', requestConfig.userID, requestConfig.socks5Address, requestConfig.globalProxy, urlPROXYIP);
+		console.log('Config params:', {
+			userCount: userIDsFromConfig(requestConfig.userID).length,
+			socks5Address: redactProxyAddress(requestConfig.socks5Address),
+			globalProxy: requestConfig.globalProxy,
+			proxyIP: urlPROXYIP
+		});
 
 		// Handle proxy configuration
 		const proxyConfig = handleProxyConfig(urlPROXYIP || PROXYIP);
@@ -135,7 +152,7 @@ export async function handleRequest(request, env, ctx, connect) {
 			}
 		}
 
-		const userIDs = requestConfig.userID.includes(',') ? requestConfig.userID.split(',').map(id => id.trim()) : [requestConfig.userID];
+		const userIDs = userIDsFromConfig(requestConfig.userID);
 		const host = request.headers.get('Host');
 		const requestedPath = url.pathname.substring(1); // Remove leading slash
 		const matchingUserID = userIDs.length === 1 ?

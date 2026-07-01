@@ -2,6 +2,8 @@
  * HTTP response handlers
  */
 
+import { escapeHtml } from '../utils/html.js';
+
 /**
  * Handles default path requests when no specific route matches.
  * Generates and returns a cloud drive interface HTML page (disguise).
@@ -11,13 +13,14 @@
  */
 export async function handleDefaultPath(url, request) {
 	const host = request.headers.get('Host');
+	const escapedHost = escapeHtml(host || '');
 	const DrivePage = `
 	  <!DOCTYPE html>
 	  <html lang="en">
 	  <head>
 		  <meta charset="UTF-8">
 		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-		  <title>${host} - Cloud Drive</title>
+		  <title>${escapedHost} - Cloud Drive</title>
 		  <style>
 			  body {
 				  font-family: Arial, sans-serif;
@@ -149,15 +152,25 @@ export async function handleDefaultPath(url, request) {
 				  fileList.innerHTML = '';
 				  savedFiles.forEach((file, index) => {
 					  const li = document.createElement('li');
-					  li.innerHTML = \`
-						  <span class="file-icon">📄</span>
-						  <a href="https://ipfs.io/ipfs/\${file.Url.split('/').pop()}" class="file-link" target="_blank">\${file.Name}</a>
-						  <div class="file-actions">
-							  <button class="delete-btn" onclick="deleteFile(\${index})">
-								  <span class="file-icon">❌</span>
-							  </button>
-						  </div>
-					  \`;
+					  const icon = document.createElement('span');
+					  icon.className = 'file-icon';
+					  icon.textContent = '📄';
+					  const link = document.createElement('a');
+					  link.href = \`https://ipfs.io/ipfs/\${String(file.Url || '').split('/').pop()}\`;
+					  link.className = 'file-link';
+					  link.target = '_blank';
+					  link.textContent = file.Name || 'Unnamed file';
+					  const actions = document.createElement('div');
+					  actions.className = 'file-actions';
+					  const button = document.createElement('button');
+					  button.className = 'delete-btn';
+					  button.addEventListener('click', () => deleteFile(index));
+					  const deleteIcon = document.createElement('span');
+					  deleteIcon.className = 'file-icon';
+					  deleteIcon.textContent = '❌';
+					  button.appendChild(deleteIcon);
+					  actions.appendChild(button);
+					  li.append(icon, link, actions);
 					  fileList.appendChild(li);
 				  });
 			  }

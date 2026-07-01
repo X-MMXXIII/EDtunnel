@@ -2,6 +2,27 @@
  * SOCKS5 proxy implementation
  */
 
+function ipv6ToBytes(address) {
+	const normalized = address.replace(/^\[|\]$/g, '');
+	const [head = '', tail = ''] = normalized.split('::');
+	const headParts = head ? head.split(':') : [];
+	const tailParts = tail ? tail.split(':') : [];
+	const missing = normalized.includes('::') ? 8 - headParts.length - tailParts.length : 0;
+	const parts = [...headParts, ...Array(Math.max(missing, 0)).fill('0'), ...tailParts];
+
+	if (parts.length !== 8) {
+		throw new Error('Invalid IPv6 address');
+	}
+
+	return parts.flatMap((part) => {
+		const value = parseInt(part || '0', 16);
+		if (!Number.isInteger(value) || value < 0 || value > 0xffff) {
+			throw new Error('Invalid IPv6 address');
+		}
+		return [value >> 8, value & 0xff];
+	});
+}
+
 /**
  * Establishes SOCKS5 proxy connection.
  * Implements full SOCKS5 handshake including optional authentication.
@@ -111,13 +132,14 @@ export async function socks5Connect(addressType, addressRemote, portRemote, log,
 			);
 			break;
 		case 2:
+			const encodedAddress = encoder.encode(addressRemote);
 			DSTADDR = new Uint8Array(
-				[3, addressRemote.length, ...encoder.encode(addressRemote)]
+				[3, encodedAddress.length, ...encodedAddress]
 			);
 			break;
 		case 3:
 			DSTADDR = new Uint8Array(
-				[4, ...addressRemote.split(':').flatMap(x => [parseInt(x.slice(0, 2), 16), parseInt(x.slice(2), 16)])]
+				[4, ...ipv6ToBytes(addressRemote)]
 			);
 			break;
 		default:

@@ -33,13 +33,15 @@ export function processProtocolHeader(protocolBuffer, userID) {
 	const isValidUser = uuids.some(uuid => slicedBufferString === uuid.trim()) ||
 		(uuids.length === 1 && slicedBufferString === uuids[0].trim());
 
-	console.log(`userID: ${slicedBufferString}`);
-
 	if (!isValidUser) {
 		return { hasError: true, message: 'invalid user' };
 	}
 
 	const optLength = dataView.getUint8(17);
+	if (protocolBuffer.byteLength < 18 + optLength + 4) {
+		return { hasError: true, message: 'invalid data' };
+	}
+
 	const command = dataView.getUint8(18 + optLength);
 
 	if (command !== 1 && command !== 2) {
@@ -55,16 +57,28 @@ export function processProtocolHeader(protocolBuffer, userID) {
 		case 1: // IPv4
 			addressLength = 4;
 			addressValueIndex = portIndex + 3;
+			if (protocolBuffer.byteLength < addressValueIndex + addressLength) {
+				return { hasError: true, message: 'invalid data' };
+			}
 			addressValue = new Uint8Array(protocolBuffer.slice(addressValueIndex, addressValueIndex + addressLength)).join('.');
 			break;
 		case 2: // Domain
+			if (protocolBuffer.byteLength < portIndex + 4) {
+				return { hasError: true, message: 'invalid data' };
+			}
 			addressLength = dataView.getUint8(portIndex + 3);
 			addressValueIndex = portIndex + 4;
+			if (protocolBuffer.byteLength < addressValueIndex + addressLength) {
+				return { hasError: true, message: 'invalid data' };
+			}
 			addressValue = new TextDecoder().decode(protocolBuffer.slice(addressValueIndex, addressValueIndex + addressLength));
 			break;
 		case 3: // IPv6
 			addressLength = 16;
 			addressValueIndex = portIndex + 3;
+			if (protocolBuffer.byteLength < addressValueIndex + addressLength) {
+				return { hasError: true, message: 'invalid data' };
+			}
 			addressValue = Array.from({ length: 8 }, (_, i) => dataView.getUint16(addressValueIndex + i * 2).toString(16)).join(':');
 			break;
 		default:
