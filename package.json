@@ -10,7 +10,9 @@
     "dev": "wrangler dev --remote",
     "dev-local": "wrangler dev src/index.js --remote",
     "bundle": "esbuild src/index.js --bundle --outfile=dist/bundle.js --format=esm --platform=browser --external:cloudflare:sockets --minify",
-    "obfuscate": "npm run bundle && javascript-obfuscator dist/bundle.js --output _worker.js --compact true --identifier-names-generator hexadecimal --rename-globals true --string-array true --string-array-threshold 1 --string-array-encoding base64 --transform-object-keys true --seed 0"
+    "obfuscate": "npm run bundle && javascript-obfuscator dist/bundle.js --output _worker.js --compact true --identifier-names-generator hexadecimal --rename-globals true --string-array true --string-array-threshold 1 --string-array-encoding base64 --string-array-rotate true --string-array-shuffle true --split-strings true --split-strings-chunk-length 6 --transform-object-keys true --control-flow-flattening true --control-flow-flattening-threshold 0.6 --dead-code-injection true --dead-code-injection-threshold 0.15 --simplify true --seed 0",
+    "pages:prepare": "mkdir -p public",
+    "pages:build": "npm run pages:prepare && npm run bundle && javascript-obfuscator dist/bundle.js --output public/_worker.js --compact true --identifier-names-generator hexadecimal --rename-globals true --string-array true --string-array-threshold 1 --string-array-encoding base64 --string-array-rotate true --string-array-shuffle true --split-strings true --split-strings-chunk-length 6 --transform-object-keys true --control-flow-flattening true --control-flow-flattening-threshold 0.6 --dead-code-injection true --dead-code-injection-threshold 0.15 --simplify true --seed 0"
   },
   "author": "",
   "license": "ISC",

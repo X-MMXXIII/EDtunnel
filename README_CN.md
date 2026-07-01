@@ -29,8 +29,12 @@
 
 ### 在 Pages.dev 部署
 
-1. 观看部署教程视频：[YouTube 教程](https://www.youtube.com/watch?v=8I-yTNHB0aw)
-2. 克隆此仓库并在 Cloudflare Pages 中部署
+1. 克隆此仓库并在 Cloudflare Pages 中部署
+2. Pages 构建命令设置为：`npm run pages:build`
+3. Pages 输出目录设置为：`public`
+4. 在 Pages 的环境变量页面配置 `UUID`、`PROXYIP`、`SOCKS5` 等变量，不要把真实 UUID 提交到仓库
+
+`pages:build` 会生成 `public/_worker.js`。Cloudflare Pages 的 `_worker.js` advanced mode 要求该文件位于输出目录中。
 
 ### 在 Worker.dev 部署
 

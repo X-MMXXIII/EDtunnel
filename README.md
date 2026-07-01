@@ -29,8 +29,12 @@ A proxy tool based on Cloudflare Workers and Pages, supporting multiple protocol
 
 ### Deploy on Pages.dev
 
-1. Watch deployment tutorial video: [YouTube Tutorial](https://www.youtube.com/watch?v=8I-yTNHB0aw)
-2. Clone this repository and deploy in Cloudflare Pages
+1. Clone this repository and deploy it with Cloudflare Pages
+2. Set the Pages build command to: `npm run pages:build`
+3. Set the Pages output directory to: `public`
+4. Configure `UUID`, `PROXYIP`, `SOCKS5`, and other variables in the Pages environment variables page. Do not commit real UUID values to the repository.
+
+`pages:build` generates `public/_worker.js`. Cloudflare Pages `_worker.js` advanced mode requires this file to be placed in the output directory.
 
 ### Deploy on Worker.dev
 
